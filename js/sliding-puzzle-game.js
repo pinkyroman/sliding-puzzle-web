@@ -1,68 +1,49 @@
-import { Tiles } from './tiles.js';
-
+import * as Util from './util.js';
+import { PuzzleBoard } from "./puzzle-board.js";
 export class SlidingPuzzleGame {
-    /* options:
-        - size: number
-        - imageUrl: string
-        - board: HTMLElement
-        - shuffleButton: string
-        - resetButton: string
-    */
-    #tiles;
-    #board;
-    #shuffleButton;
-    #resetButton;
+    // 어플리케이션 버전
+    #version = '0.2.0';
     
-    constructor(options) {
-        if (document.readyState === 'complete') {
-            this.#initialize(options);
-            return;
+    // 'app' 및 'version'에 대한 HTML 엘리먼트 레퍼런스
+    #appElem;    
+    #versionElem;
+    
+    // PuzzleBoard 인스턴스
+    #board;
+
+    /* options: {
+        app: 'query selector',          // 필수 옵션
+        version: 'query selector',      // 필수 옵션
+        board: {                        // 필수 옵션
+            elem: 'query selector',     // 필수 옵션
+            dimension: number,          // 생략 시, 3 (n: n x n 타일 생성)
+            images: [array of string],  // 필수 옵션
+            defaultImageIndex: number,  // 생략 시, 0
         }
+    }
+    */
+    constructor(options) {
         window.addEventListener('DOMContentLoaded', () => {
             this.#initialize(options);
         });
     }
 
     #initialize(options) {
-        const imageUrl = options?.imageUrl ?? './images/puzzle.jpg';
-        const size = options?.size ?? 2;
-        const board = this.#getElement(options?.board ?? 'board');
-        const boardWidth = board.clientWidth;
-        const boardHeight = board.clientHeight;
+        try {
+            if (options == null) {
+                throw new Error(`application option is null.`);
+            }
 
-        this.#tiles = new Tiles(imageUrl, size, boardWidth, boardHeight, () => {
-            this.#setupButtons(options);            
-            board.appendChild(this.#tiles.elements);
-            this.#board = board;
-        });
-    }
-
-    #getElement(id) {
-        const elem = document.getElementById(id);
-        if (elem == null) {
-            throw new Error(`invalid element id: '${id}'`);
+            this.#appElem = Util.queryElement(options.app);
+            this.#board = new PuzzleBoard(options.board);
+            this.#setVersion(options);
+        } catch (e) {
+            throw e;
         }
-        return elem;
     }
 
-    #setupButtons(options) {
-        this.#shuffleButton = this.#getElement(options?.shuffleButton ?? 'shuffle-button');
-        this.#resetButton = this.#getElement(options?.resetButton ?? 'reset-button');
-
-        this.#shuffleButton.addEventListener('click', () => {
-            this.#tiles.shuffle();
-            this.#updateBoard();
-        });
-
-        this.#resetButton.addEventListener('click', () => {
-            this.#tiles.reset();
-            this.#updateBoard();
-        });
-    }
-
-    #updateBoard() {
-        const board = this.#board;
-        board.innerHTML = '';
-        board.appendChild(this.#tiles.elements);
+    #setVersion(options) {
+        this.#versionElem = Util.queryElement(options.version);            
+        this.#versionElem.innerText = `Version ${this.#version}`;
     }
 }
