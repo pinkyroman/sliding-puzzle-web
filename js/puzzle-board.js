@@ -1,7 +1,6 @@
 import * as Util from './util.js';
 import { PuzzleBoardMap } from './puzzle-board-map.js';
 import { PuzzleBoardTiles } from './puzzle-borad-tiles.js';
-import { PuzzleBoardRenderer } from './puzzle-board-renderer.js';
 
 export class PuzzleBoard {
     // 보드 엘리먼트 레퍼런스
@@ -40,12 +39,10 @@ export class PuzzleBoard {
                 boardSize: this.#size, 
                 initialized: () => {
                     this.#map = new PuzzleBoardMap(options.dimension);
-                    this.#renderer = new PuzzleBoardRenderer(this.#elem, this.#tiles, this.#map);
-
-                    this.#renderer.render();
+                    this.#render();
                 }
             });
-        } catch (e) {            
+        } catch (e) {
             this.#throwIntancitationFailedException(e);
         }
     }
@@ -63,6 +60,26 @@ export class PuzzleBoard {
         this.#size = elem.clientWidth;
     }
 
+    #onBoardClick(e) {
+        const target = e.target;
+        if (!target.matches('div.puzzle-board-tile')) {
+            return;
+        }
+
+        const newPosition = this.#map.tryMove(target.id);
+        if (newPosition) {
+            this.#setTilePosition(target, newPosition);
+        }
+    }
+
+    #setTilePosition(tile, pos) {
+        const style = tile.style;
+        const tileSize = this.#tiles.tileSize;
+
+        style.top = `${pos.row * tileSize}px`;
+        style.left = `${pos.col * tileSize}px`;
+    }
+
     #setupImages(options) {
         const images = options.images ?? null;
         if (images.length == null) {
@@ -74,19 +91,25 @@ export class PuzzleBoard {
             throw new Error(`'defaultImageIndex' is out of range: ${index}`);
         }
 
-        this.#images = images;        
+        this.#images = images;
         this.#selectedImageIndex = index;
     }
 
-    #onBoardClick(e) {
-        const target = e.target;
-        if (!target.matches('div.puzzle-board-tile')) {
-            return;
+    #render() {
+        const fragments = new DocumentFragment();
+        const map = this.#map;
+
+        for (const mapObj of map) {
+            if (PuzzleBoardMap.objectIsBlankTile(mapObj)) {
+                continue;
+            }
+
+            const tile = this.#tiles.getTile(mapObj.id);
+            this.#setTilePosition(tile, mapObj);
+            fragments.append(tile);
         }
 
-        const newPosition = this.#map.tryMove(target.id);
-        if (newPosition) {
-            this.#renderer.setTilePosition(target, newPosition);
-        }
+        this.#elem.innerHTML = '';
+        this.#elem.appendChild(fragments);
     }
 }
