@@ -108,8 +108,6 @@ export class PuzzleBoard {
             this.#setTilePosition(tile, mapObj);
             fragments.append(tile);
         }
-
-        this.#elem.innerHTML = '';
-        this.#elem.appendChild(fragments);
-    }
+        this.#elem.replaceChildren(...fragments.children);        
+    }   
 }
