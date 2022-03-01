@@ -1,5 +1,6 @@
 import * as Util from './util.js';
 import { PuzzleBoard } from "./puzzle-board.js";
+
 export class SlidingPuzzleGame {
     // 어플리케이션 버전
     #version = '0.2.0';
@@ -23,27 +24,35 @@ export class SlidingPuzzleGame {
     }
     */
     constructor(options) {
-        window.addEventListener('DOMContentLoaded', () => {
-            this.#initialize(options);
-        });
+        window.addEventListener('DOMContentLoaded', this.#initialize(options));
     }
 
     #initialize(options) {
-        try {
-            if (options == null) {
-                throw new Error(`application option is null.`);
-            }
-
-            this.#appElem = Util.queryElement(options.app);
-            this.#board = new PuzzleBoard(options.board);
-            this.#setVersion(options);
-        } catch (e) {
-            throw e;
+        return e => {
+            try {
+                if (options == null) {
+                    throw new Error(`application option is null.`);
+                }
+    
+                this.#appElem = Util.queryElement(options.app);
+                this.#setVersion(options);
+                this.#board = new PuzzleBoard(options.board);
+    
+                window.addEventListener('keydown', this.#onKeyDown.bind(this));
+            } catch (e) {
+                throw e;
+            }    
         }
     }
 
     #setVersion(options) {
         this.#versionElem = Util.queryElement(options.version);            
         this.#versionElem.innerText = `Version ${this.#version}`;
+    }
+
+    #onKeyDown(e) {
+        if (e.key === 'Escape') {
+            console.log('ESC key pressed');
+        }
     }
 }
