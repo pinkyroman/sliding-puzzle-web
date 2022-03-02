@@ -1,6 +1,7 @@
 import * as Util from './util.js';
 import { PuzzleBoardMap } from './puzzle-board-map.js';
 import { PuzzleBoardTiles } from './puzzle-borad-tiles.js';
+import { PopupBox } from './popup-box.js';
 
 export class PuzzleBoard {
     // 보드 엘리먼트 레퍼런스
@@ -42,6 +43,8 @@ export class PuzzleBoard {
                     this.#render();
                 }
             });
+
+            window.addEventListener('keydown', this.#onKeydown.bind(this));
         } catch (e) {
             this.#throwIntancitationFailedException(e);
         }
@@ -108,6 +111,28 @@ export class PuzzleBoard {
             this.#setTilePosition(tile, mapObj);
             fragments.append(tile);
         }
-        this.#elem.replaceChildren(...fragments.children);        
+        this.#elem.replaceChildren(...fragments.children);
     }   
+
+    #onKeydown(e) {
+        console.log('!!!!! board got a keydown!');
+        if (e.key !== 'Escape') {
+            return;
+        }
+
+        const popupBox = new PopupBox();
+        popupBox.show({
+            mount: '#app-main .popup-box',
+            content: 'menu.html',
+            data: {
+                // 팝업 박스 컨텐츠에 전달 할 옵션 값
+            },
+            onshow: () => {
+
+            },
+            onclose: data => {
+
+            }
+        });
+    }
 }

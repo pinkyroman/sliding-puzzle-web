@@ -4,6 +4,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
 /* Font for Texts */
 @import url('https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@100&display=swap');
+/* Popup Box */
+@import url('popup-box.css');
 
 #app {
     box-sizing: border-box;    

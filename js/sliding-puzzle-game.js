@@ -37,8 +37,6 @@ export class SlidingPuzzleGame {
                 this.#appElem = Util.queryElement(options.app);
                 this.#setVersion(options);
                 this.#board = new PuzzleBoard(options.board);
-    
-                window.addEventListener('keydown', this.#onKeyDown.bind(this));
             } catch (e) {
                 throw e;
             }    
@@ -48,11 +46,5 @@ export class SlidingPuzzleGame {
     #setVersion(options) {
         this.#versionElem = Util.queryElement(options.version);            
         this.#versionElem.innerText = `Version ${this.#version}`;
-    }
-
-    #onKeyDown(e) {
-        if (e.key === 'Escape') {
-            console.log('ESC key pressed');
-        }
     }
 }
