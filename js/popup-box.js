@@ -3,11 +3,10 @@ import * as Util from './util.js';
 export class PopupBox {
     static #instance;
 
-    #element;
-    #parentElement;
+    #parent;
+    #parentStyleBackup;
+    #backdrop;
     #onKeydownEventHandler;
-    #parentElementStyleBackup;
-
 
     constructor() {
         if (PopupBox.#instance) {
@@ -22,24 +21,25 @@ export class PopupBox {
     }
 
     show(options) {
-        this.#element = Util.queryElement(options.mount);
-
-        this.#backupParentStyle();
-        this.#parentElement.style.position = 'relative';
-        this.#parentElement.style.overflow = 'hidden';
-
-        // TODO: load contents ...
-
-        this.#element.style.display = 'block';
-
         this.#onKeydownEventHandler = this.#onKeydown.bind(this);
         window.addEventListener('keydown', this.#onKeydownEventHandler, true);
+
+        this.#backdrop = Util.queryElement(options.mount);
+
+        this.#backupParentStyle();
+        this.#parent.style.position = 'relative';
+        this.#parent.style.overflow = 'hidden';
+
+        const contentSelector = `${options.mount} .popup-box-contents`;
+        Util.load(contentSelector, options.contents);
+
+        this.#backdrop.style.display = 'block';
     }
     
     #backupParentStyle() {
-        this.#parentElement = this.#element.parentElement;
-        const computedStyle = window.getComputedStyle(this.#parentElement);
-        this.#parentElementStyleBackup = {
+        this.#parent = this.#backdrop.parentElement;
+        const computedStyle = window.getComputedStyle(this.#parent);
+        this.#parentStyleBackup = {
             position: computedStyle.position,
             overflow: computedStyle.overflow,
         };
@@ -47,12 +47,12 @@ export class PopupBox {
 
     close() {        
         this.#restoreParentStyle();
-        this.#element.style.display = 'none';
+        this.#backdrop.style.display = 'none';
     }
 
     #restoreParentStyle() {
-        const style = this.#parentElement.style;
-        const backedupStyle = this.#parentElementStyleBackup;
+        const style = this.#parent.style;
+        const backedupStyle = this.#parentStyleBackup;
         style.position = backedupStyle.position;
         style.overflow = backedupStyle.overflow;
     }

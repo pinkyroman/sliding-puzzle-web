@@ -123,7 +123,7 @@ export class PuzzleBoard {
         const popupBox = new PopupBox();
         popupBox.show({
             mount: '#app-main .popup-box',
-            content: 'menu.html',
+            contents: 'test.html',
             data: {
                 // 팝업 박스 컨텐츠에 전달 할 옵션 값
             },

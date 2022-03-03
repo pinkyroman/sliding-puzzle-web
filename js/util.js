@@ -6,28 +6,27 @@ export function queryElement(selector) {
     return elem;
 }
 
-export function load(url, parentElement) {
+export function load(selector, url) {
     return new Promise((resolve, reject) => {
-        fetch(url).then(response => {
-            if (response.ok) {
-                return response.text().then(text => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(text, "text/html");
-                    const $contents = doc.getElementsByTagName('body')[0];
-                    const $fragments = new DocumentFragment();
-                    
-                    $fragments.replaceChildren(...$contents.children);
-                    parentElement.appendChild($fragments);                    
-                    
-                    //TODO: styleshteets 처리
-                    //TODO: scripts 처리
+        const request = new XMLHttpRequest();
 
+        request.responseType = 'document';
+        request.open('GET', url, true);
+        request.onload = () => {            
+            if (request.status == 200) {
+                try {
+                    const $contents = request.responseXML.querySelector('body').children;
+                    queryElement(selector).replaceChildren(...$contents);
+
+                    // TODO: stylesheets, scripts 등
                     resolve();
-                });    
+                } catch (e) {
+                    reject(e);
+                }                
+            } else {
+                reject(`${request.status} ${request.statusText}`);
             }
-            reject(`${response.status} ${response.statusText}`);
-        }).catch(error => {
-            reject(error);
-        });        
+        };
+        request.send();
     });
 }
